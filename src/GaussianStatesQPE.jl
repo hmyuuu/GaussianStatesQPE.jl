@@ -12,14 +12,14 @@ bases(dim; T=ComplexF64) = [e for e in I(dim).|>T|>eachrow]
 
 function Williamson_form(A::AbstractMatrix)
     n = size(A)[1]//2 |>Int
-    J = zeros(n,n)|>x->[x one(x); -one(x) x]
+    J =  kron([0 1.; -1 0],I(n))
     A_sqrt = sqrt(A)
     B = A_sqrt*J*A_sqrt
     P = one(A)|>x->[x[:,1:2:2n-1] x[:,2:2:2n]]
-    t, Q, vals = schur(B)
+    T, Q, vals = schur(B)
     c = vals[1:2:2n-1].|>imag
     D = c|>diagm|>x->x^(-0.5)
-    S = J*A_sqrt*Q*P*[zeros(n,n) -D; D zeros(n,n)]*transpose(P)|>transpose|> inv
+    S = J*A_sqrt*Q*P*kron([0 1.; -1 0],-D)*transpose(P)|>transpose|> inv
     return S, c
 end
 
